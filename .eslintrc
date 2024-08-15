@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "plugin:jest/recommended",
+    "plugin:prettier/recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "eslint:recommended",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "env": {
+    "jest": true
+  },
+  "plugins": ["graphql", "lodash", "prettier", "@typescript-eslint"],
+  "rules": {
+    "prettier/prettier": [
+      "error",
+      {
+        "usePrettierrc": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+scalar JSON
+directive @structure(allowedTypes: [String!]) on FIELD_DEFINITION
+
+type Query {
+  user: User
+}
+
+type User {
+  name: String
+  dob: DoB
+}
+
+type DoB {
+  year: Int
+  day: Int
+  Month: Int
+}

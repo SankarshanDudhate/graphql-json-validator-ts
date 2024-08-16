@@ -1,24 +1,22 @@
 import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils'
-import { GraphQLError } from 'graphql/error/index.js'
+import { GraphQLNamedType, GraphQLSchema } from 'graphql'
+import { Maybe } from 'graphql/jsutils/Maybe'
+import { validateAllowedTypesArg, validateTargetFieldToBeJSON } from './validations'
 
-export function structureDirective(schema) {
+export function structureDirective(schema: GraphQLSchema) {
   return mapSchema(schema, {
-    [MapperKind.OBJECT_FIELD]: (fieldConfig, fieldName, typeName) => {
+    [MapperKind.OBJECT_FIELD]: (fieldConfig, fieldName) => {
       const structureDirective = getDirective(schema, fieldConfig, 'structure')
       if (structureDirective) {
-        const fieldType = fieldConfig.type.toString()
-        if (fieldType !== 'JSON')
-          throw new GraphQLError(
-            `@structure directive cannot be applied to fields of type ${fieldType}`,
-          )
+        fieldConfig.resolve = (source) => {
+          validateTargetFieldToBeJSON(fieldConfig, fieldName)
 
-        const { allowedTypes } = structureDirective[0]
-        allowedTypes.forEach((typeName) => {
-          if (!schema.getType(typeName))
-            throw new GraphQLError(
-              `Unknown type ${typeName} specified as an argument for @structure`,
-            )
-        })
+          const { allowedTypes } = structureDirective[0]
+          allowedTypes.map((typeName) => {
+            const gqlType: Maybe<GraphQLNamedType> = schema.getType(typeName)
+            validateAllowedTypesArg(gqlType, typeName, fieldName)
+          })
+        }
       }
       return fieldConfig
     },

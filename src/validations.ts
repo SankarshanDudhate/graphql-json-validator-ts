@@ -1,6 +1,7 @@
 import {
   getNullableType,
   GraphQLFieldConfig,
+  GraphQLLeafType,
   GraphQLNamedType,
   GraphQLObjectType,
   isNonNullType,
@@ -12,7 +13,6 @@ import {
   JsonStructureDirectiveValidationError,
 } from './JsonStructureDirectiveValidationError'
 import isNil from 'lodash/isNil'
-import { GraphQLScalarType } from 'graphql/type/index.js'
 
 export function validateTargetFieldToBeJSON(
   fieldConfig: GraphQLFieldConfig<any, any>,
@@ -50,14 +50,15 @@ export function validateAllowedTypesArg(
     )
 }
 
-const isValidScalar = (value: any, scalarType: GraphQLScalarType) => {
+const isValidLeafValue = (value: any, leafType: GraphQLLeafType) => {
   try {
-    scalarType.serialize(value)
+    leafType.serialize(value)
   } catch (e) {
     return false
   }
   return true
 }
+
 export const isValidObjectOfGqlType = (obj: any, gqlType: GraphQLObjectType) => {
   const fieldMap = gqlType.getFields()
   for (const [fieldName, fieldDescriptor] of Object.entries(fieldMap)) {
@@ -73,7 +74,7 @@ export const isValidObjectOfGqlType = (obj: any, gqlType: GraphQLObjectType) => 
       continue
     }
 
-    if (!isValidScalar(fieldValue, fieldNullableType as GraphQLScalarType)) return false
+    if (!isValidLeafValue(fieldValue, fieldNullableType as GraphQLLeafType)) return false
   }
   return true
 }

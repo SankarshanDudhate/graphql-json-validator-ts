@@ -130,7 +130,8 @@ describe('Objects', () => {
     it('valid nested object', async () => {
       const data = {
         mandatoryObject: {
-          optionalInt: 123,
+          mandatoryInt: 123,
+          mandatoryEnum: 'Admin',
         },
       }
       const typeDefs = `
@@ -139,19 +140,24 @@ describe('Objects', () => {
           mandatoryObject: MandatoryObject
         }
         type MandatoryObject {
-          optionalInt: Int!
+          mandatoryInt: Int!
+          mandatoryEnum: RoleEnum!
+        }
+        enum RoleEnum {
+          Admin
         }
       `
       const schema = buildTestSchema(data, typeDefs)
       const result = await executeTestQuery(schema, userQuery)
+      expect(result.errors).toEqual(undefined)
       expect(result.data?.user).toEqual({
         customJson: {
           mandatoryObject: {
-            optionalInt: 123,
+            mandatoryInt: 123,
+            mandatoryEnum: 'Admin',
           },
         },
       })
-      expect(result.errors).toEqual(undefined)
     })
   })
 })

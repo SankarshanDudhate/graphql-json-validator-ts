@@ -1,4 +1,11 @@
-import { GraphQLFieldConfig, GraphQLNamedType, GraphQLObjectType, isNonNullType } from 'graphql'
+import {
+  getNullableType,
+  GraphQLFieldConfig,
+  GraphQLNamedType,
+  GraphQLObjectType,
+  isNonNullType,
+  isObjectType,
+} from 'graphql'
 import { Maybe } from 'graphql/jsutils/Maybe'
 import {
   defaultErrorExtension,
@@ -52,7 +59,13 @@ export const isValidObjectOfGqlType = (obj: any, gqlType: GraphQLObjectType) => 
       continue
     }
 
-    const scalarType = fieldDescriptor.type as GraphQLScalarType
+    const fieldNullableType = getNullableType(fieldDescriptor.type)
+    if (isObjectType(fieldNullableType)) {
+      if (!isValidObjectOfGqlType(fieldValue, fieldNullableType)) return false
+      continue
+    }
+
+    const scalarType = fieldNullableType as GraphQLScalarType
     try {
       scalarType.serialize(fieldValue)
     } catch (e) {

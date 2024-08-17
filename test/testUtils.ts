@@ -23,3 +23,21 @@ export const executeTestQuery = (schema: GraphQLSchema, query: string) =>
     source: query,
     rootValue: {},
   })
+export const userQuery = `
+  query {
+    user {
+      customJson
+    }
+  }
+`
+export const typeDefsWithoutCustomType = `
+  scalar JSON
+  directive @structure(allowedTypes: [String!]) on FIELD_DEFINITION
+  type Query {
+    user: User
+  }
+  type User {
+    name: String
+    customJson: JSON @structure(allowedTypes: ["CustomType"])
+  }
+`

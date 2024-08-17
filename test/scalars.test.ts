@@ -1,25 +1,10 @@
 import { describe, expect, it } from '@jest/globals'
-import { buildTestSchema, executeTestQuery } from './testUtils'
-
-const typeDefsWithoutCustomType = `
-  scalar JSON
-  directive @structure(allowedTypes: [String!]) on FIELD_DEFINITION
-  type Query {
-    user: User
-  }
-  type User {
-    name: String
-    customJson: JSON @structure(allowedTypes: ["CustomType"])
-  }
-`
-
-const userQuery = `
-  query {
-    user {
-      customJson
-    }
-  }
-`
+import {
+  buildTestSchema,
+  executeTestQuery,
+  typeDefsWithoutCustomType,
+  userQuery,
+} from './testUtils'
 
 describe('Scalars', () => {
   describe('Invalid', () => {
@@ -66,7 +51,7 @@ describe('Scalars', () => {
       `
       const schema = buildTestSchema(data, typeDefs)
       const result = await executeTestQuery(schema, userQuery)
-      expect(result.errors).toBe(undefined)
+      expect(result.errors).toEqual(undefined)
     })
 
     it('optional field is null', async () => {
@@ -81,7 +66,22 @@ describe('Scalars', () => {
       `
       const schema = buildTestSchema(data, typeDefs)
       const result = await executeTestQuery(schema, userQuery)
-      expect(result.errors).toBe(undefined)
+      expect(result.errors).toEqual(undefined)
+    })
+
+    it('mandatory int field', async () => {
+      const data = {
+        mandatoryInt: 123,
+      }
+      const typeDefs = `
+        ${typeDefsWithoutCustomType}
+        type CustomType {
+          mandatoryInt: Int!
+        }
+      `
+      const schema = buildTestSchema(data, typeDefs)
+      const result = await executeTestQuery(schema, userQuery)
+      expect(result.errors).toEqual(undefined)
     })
   })
 })

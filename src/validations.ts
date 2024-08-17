@@ -50,6 +50,14 @@ export function validateAllowedTypesArg(
     )
 }
 
+const isValidScalar = (value: any, scalarType: GraphQLScalarType) => {
+  try {
+    scalarType.serialize(value)
+  } catch (e) {
+    return false
+  }
+  return true
+}
 export const isValidObjectOfGqlType = (obj: any, gqlType: GraphQLObjectType) => {
   const fieldMap = gqlType.getFields()
   for (const [fieldName, fieldDescriptor] of Object.entries(fieldMap)) {
@@ -65,12 +73,7 @@ export const isValidObjectOfGqlType = (obj: any, gqlType: GraphQLObjectType) => 
       continue
     }
 
-    const scalarType = fieldNullableType as GraphQLScalarType
-    try {
-      scalarType.serialize(fieldValue)
-    } catch (e) {
-      return false
-    }
+    if (!isValidScalar(fieldValue, fieldNullableType as GraphQLScalarType)) return false
   }
   return true
 }

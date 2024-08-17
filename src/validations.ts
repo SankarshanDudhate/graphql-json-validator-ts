@@ -1,6 +1,9 @@
 import { GraphQLFieldConfig, GraphQLNamedType, GraphQLObjectType, isNonNullType } from 'graphql'
 import { Maybe } from 'graphql/jsutils/Maybe'
-import { JsonStructureDirectiveValidationError } from './JsonStructureDirectiveValidationError'
+import {
+  defaultErrorExtension,
+  JsonStructureDirectiveValidationError,
+} from './JsonStructureDirectiveValidationError'
 import isNil from 'lodash/isNil'
 import { GraphQLScalarType } from 'graphql/type/index.js'
 
@@ -17,11 +20,6 @@ export function validateTargetFieldToBeJSON(
       },
     )
 }
-
-export const defaultErrorExtension = (fieldName: string) => ({
-  code: 'GRAPHQL_VALIDATION_FAILED',
-  fieldName: fieldName,
-})
 
 export function validateAllowedTypesArg(
   gqlType: Maybe<GraphQLNamedType>,

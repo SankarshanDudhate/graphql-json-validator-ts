@@ -29,3 +29,8 @@ export class JsonStructureDirectiveValidationError extends GraphQLError {
     )
   }
 }
+
+export const defaultErrorExtension = (fieldName: string) => ({
+  code: 'GRAPHQL_VALIDATION_FAILED',
+  fieldName: fieldName,
+})

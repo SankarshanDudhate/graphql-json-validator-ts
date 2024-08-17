@@ -1,7 +1,5 @@
 import { describe, expect, it } from '@jest/globals'
-import { structureDirective } from '../src/structureDirective'
-import { makeExecutableSchema } from '@graphql-tools/schema'
-import { graphql, GraphQLSchema } from 'graphql'
+import { buildTestSchema, executeTestQuery } from './testUtils'
 
 const typeDefsWithoutCustomType = `
   scalar JSON
@@ -23,29 +21,6 @@ const userQuery = `
   }
 `
 
-const buildTestSchemaWithData = (data: any, typeDefs: string) => {
-  const resolvers = {
-    Query: {
-      user: () => ({
-        customJson: data,
-      }),
-    },
-  }
-  return structureDirective(
-    makeExecutableSchema({
-      typeDefs: typeDefs,
-      resolvers,
-    }),
-  )
-}
-
-const executeWithSchema = (schema: GraphQLSchema) =>
-  graphql({
-    schema,
-    source: userQuery,
-    rootValue: {},
-  })
-
 describe('Scalars', () => {
   describe('Invalid', () => {
     const typeDefs = `
@@ -58,8 +33,8 @@ describe('Scalars', () => {
       const data = {
         mandatoryInt: undefined,
       }
-      const schema = buildTestSchemaWithData(data, typeDefs)
-      const result = await executeWithSchema(schema)
+      const schema = buildTestSchema(data, typeDefs)
+      const result = await executeTestQuery(schema, userQuery)
       expect(result.errors?.[0].message).toEqual(
         'Field customJson of type JSON does not match any of the allowed types',
       )
@@ -69,8 +44,8 @@ describe('Scalars', () => {
       const data = {
         mandatoryInt: null,
       }
-      const schema = buildTestSchemaWithData(data, typeDefs)
-      const result = await executeWithSchema(schema)
+      const schema = buildTestSchema(data, typeDefs)
+      const result = await executeTestQuery(schema, userQuery)
       expect(result.errors?.[0].message).toEqual(
         'Field customJson of type JSON does not match any of the allowed types',
       )
@@ -89,9 +64,8 @@ describe('Scalars', () => {
           optionalInt: Int
         }
       `
-      const schema = buildTestSchemaWithData(data, typeDefs)
-      const result = await executeWithSchema(schema)
-      console.log(result.data)
+      const schema = buildTestSchema(data, typeDefs)
+      const result = await executeTestQuery(schema, userQuery)
       expect(result.errors).toBe(undefined)
     })
 
@@ -105,8 +79,8 @@ describe('Scalars', () => {
           optionalInt: Int
         }
       `
-      const schema = buildTestSchemaWithData(data, typeDefs)
-      const result = await executeWithSchema(schema)
+      const schema = buildTestSchema(data, typeDefs)
+      const result = await executeTestQuery(schema, userQuery)
       expect(result.errors).toBe(undefined)
     })
   })

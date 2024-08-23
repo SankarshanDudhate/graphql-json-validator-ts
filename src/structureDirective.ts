@@ -1,12 +1,9 @@
 import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils'
 import { GraphQLNamedType, GraphQLObjectType, GraphQLSchema } from 'graphql'
 import { Maybe } from 'graphql/jsutils/Maybe'
-import {
-  isValidObjectOfGqlType,
-  validateAllowedTypesArg,
-  validateTargetFieldToBeJSON,
-} from './validations'
+import { validateAllowedTypesArg, validateTargetFieldToBeJSON } from './validations'
 import { JsonStructureDirectiveValidationError } from './JsonStructureDirectiveValidationError'
+import '././typeValidators/typeValidators'
 
 export function structureDirective(schema: GraphQLSchema) {
   return mapSchema(schema, {
@@ -20,7 +17,7 @@ export function structureDirective(schema: GraphQLSchema) {
           const matchesAnyAllowedType: string = allowedTypes.find((typeName) => {
             const gqlType: Maybe<GraphQLNamedType> = schema.getType(typeName)
             validateAllowedTypesArg(gqlType, typeName, fieldName)
-            return isValidObjectOfGqlType(source[fieldName], gqlType as GraphQLObjectType)
+            return (gqlType as GraphQLObjectType).isValidJsValue(source[fieldName] as never)
           })
           if (!matchesAnyAllowedType)
             throw new JsonStructureDirectiveValidationError(

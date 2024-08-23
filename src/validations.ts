@@ -1,21 +1,12 @@
-import {
-  getNullableType,
-  GraphQLFieldConfig,
-  GraphQLLeafType,
-  GraphQLNamedType,
-  GraphQLObjectType,
-  isNonNullType,
-  isObjectType,
-} from 'graphql'
+import { GraphQLFieldConfig, GraphQLNamedType, GraphQLObjectType } from 'graphql'
 import { Maybe } from 'graphql/jsutils/Maybe'
 import {
   defaultErrorExtension,
   JsonStructureDirectiveValidationError,
 } from './JsonStructureDirectiveValidationError'
-import isNil from 'lodash/isNil'
 
 export function validateTargetFieldToBeJSON(
-  fieldConfig: GraphQLFieldConfig<any, any>,
+  fieldConfig: GraphQLFieldConfig<never, never>,
   fieldName: string,
 ) {
   const fieldType = fieldConfig.type.toString()
@@ -48,33 +39,4 @@ export function validateAllowedTypesArg(
         extensions: defaultErrorExtension(fieldName),
       },
     )
-}
-
-const isValidLeafValue = (value: any, leafType: GraphQLLeafType) => {
-  try {
-    leafType.serialize(value)
-  } catch (e) {
-    return false
-  }
-  return true
-}
-
-export const isValidObjectOfGqlType = (obj: any, gqlType: GraphQLObjectType) => {
-  const fieldMap = gqlType.getFields()
-  for (const [fieldName, fieldDescriptor] of Object.entries(fieldMap)) {
-    const fieldValue = obj[fieldName]
-    if (isNil(fieldValue)) {
-      if (isNonNullType(fieldDescriptor.type)) return false
-      continue
-    }
-
-    const fieldNullableType = getNullableType(fieldDescriptor.type)
-    if (isObjectType(fieldNullableType)) {
-      if (!isValidObjectOfGqlType(fieldValue, fieldNullableType)) return false
-      continue
-    }
-
-    if (!isValidLeafValue(fieldValue, fieldNullableType as GraphQLLeafType)) return false
-  }
-  return true
 }

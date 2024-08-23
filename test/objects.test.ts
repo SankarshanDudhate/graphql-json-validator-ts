@@ -69,6 +69,24 @@ describe('Objects', () => {
         'Field customJson of type JSON does not match any of the allowed types',
       )
     })
+
+    it('empty object with nested mandatory field', async () => {
+      const data = {}
+      const typeDefs = `
+        ${typeDefsWithoutCustomType}
+        type CustomType {
+          mandatoryObject: MandatoryObject!
+        }
+        type MandatoryObject {
+          mandatoryInt: Int!
+        }
+      `
+      const schema = buildTestSchema(data, typeDefs)
+      const result = await executeTestQuery(schema, userQuery)
+      expect(result.errors?.[0].message).toEqual(
+        'Field customJson of type JSON does not match any of the allowed types',
+      )
+    })
   })
   describe('Valid', () => {
     it('mandatory object is undefined', async () => {

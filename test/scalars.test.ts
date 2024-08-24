@@ -7,81 +7,37 @@ import {
 } from './testUtils'
 
 describe('Scalars', () => {
-  describe('Invalid', () => {
+  it('invalid scalar - different type', async () => {
+    const data = {
+      mandatoryInt: 'Bla bla',
+    }
+    const typeDefs = `
+        ${typeDefsWithoutCustomType}
+        type CustomType {
+          mandatoryInt: Boolean
+        }
+      `
+    const schema = buildTestSchema(data, typeDefs)
+    const result = await executeTestQuery(schema, userQuery)
+    expect(result.errors?.[0].message).toEqual(
+      'Field customJson of type JSON does not match any of the allowed types',
+    )
+  })
+
+  it('valid scalar', async () => {
+    const data = {
+      mandatoryInt: 123,
+    }
     const typeDefs = `
         ${typeDefsWithoutCustomType}
         type CustomType {
           mandatoryInt: Int!
         }
       `
-    it('mandatory field is undefined', async () => {
-      const data = {
-        mandatoryInt: undefined,
-      }
-      const schema = buildTestSchema(data, typeDefs)
-      const result = await executeTestQuery(schema, userQuery)
-      expect(result.errors?.[0].message).toEqual(
-        'Field customJson of type JSON does not match any of the allowed types',
-      )
-    })
-
-    it('mandatory field is null', async () => {
-      const data = {
-        mandatoryInt: null,
-      }
-      const schema = buildTestSchema(data, typeDefs)
-      const result = await executeTestQuery(schema, userQuery)
-      expect(result.errors?.[0].message).toEqual(
-        'Field customJson of type JSON does not match any of the allowed types',
-      )
-    })
+    const schema = buildTestSchema(data, typeDefs)
+    const result = await executeTestQuery(schema, userQuery)
+    expect(result.errors).toEqual(undefined)
   })
 
-  describe('Valid', () => {
-    // QUESTION should this be returned as null or should it be skipped?
-    it('optional field is undefined', async () => {
-      const data = {
-        optionalInt: undefined,
-      }
-      const typeDefs = `
-        ${typeDefsWithoutCustomType}
-        type CustomType {
-          optionalInt: Int
-        }
-      `
-      const schema = buildTestSchema(data, typeDefs)
-      const result = await executeTestQuery(schema, userQuery)
-      expect(result.errors).toEqual(undefined)
-    })
-
-    it('optional field is null', async () => {
-      const data = {
-        optionalInt: null,
-      }
-      const typeDefs = `
-        ${typeDefsWithoutCustomType}
-        type CustomType {
-          optionalInt: Int
-        }
-      `
-      const schema = buildTestSchema(data, typeDefs)
-      const result = await executeTestQuery(schema, userQuery)
-      expect(result.errors).toEqual(undefined)
-    })
-
-    it('mandatory int field', async () => {
-      const data = {
-        mandatoryInt: 123,
-      }
-      const typeDefs = `
-        ${typeDefsWithoutCustomType}
-        type CustomType {
-          mandatoryInt: Int!
-        }
-      `
-      const schema = buildTestSchema(data, typeDefs)
-      const result = await executeTestQuery(schema, userQuery)
-      expect(result.errors).toEqual(undefined)
-    })
-  })
+  // TODO add tests that show how different scalar types are coerced
 })

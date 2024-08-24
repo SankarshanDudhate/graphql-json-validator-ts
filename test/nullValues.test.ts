@@ -6,22 +6,24 @@ import {
   userQuery,
 } from './testUtils'
 
-describe('Objects', () => {
-  describe('Invalid', () => {
-    it('nested object with null mandatory field', async () => {
+describe('Null values', () => {
+  describe('Mandatory', () => {
+    const testTable = [
+      ['Int', ''],
+      ['RoleEnum', 'enum RoleEnum { Admin }'],
+      ['MandatoryObject', 'type MandatoryObject { someField: String }'],
+    ]
+
+    it.each(testTable)('when undefined', async (typeName: string, additionalTypeDef: string) => {
       const data = {
-        mandatoryObject: {
-          mandatoryInt: null,
-        },
+        mandatoryField: undefined,
       }
       const typeDefs = `
         ${typeDefsWithoutCustomType}
         type CustomType {
-          mandatoryObject: MandatoryObject!
+          mandatoryField: ${typeName}!
         }
-        type MandatoryObject {
-          mandatoryInt: Int!
-        }
+        ${additionalTypeDef}
       `
       const schema = buildTestSchema(data, typeDefs)
       const result = await executeTestQuery(schema, userQuery)
@@ -30,16 +32,16 @@ describe('Objects', () => {
       )
     })
 
-    it('empty object with nested mandatory field', async () => {
-      const data = {}
+    it.each(testTable)('when null', async (typeName: string, additionalTypeDef: string) => {
+      const data = {
+        mandatoryField: null,
+      }
       const typeDefs = `
         ${typeDefsWithoutCustomType}
         type CustomType {
-          mandatoryObject: MandatoryObject!
+          mandatoryField: ${typeName}!
         }
-        type MandatoryObject {
-          mandatoryInt: Int!
-        }
+        ${additionalTypeDef}
       `
       const schema = buildTestSchema(data, typeDefs)
       const result = await executeTestQuery(schema, userQuery)
@@ -49,58 +51,44 @@ describe('Objects', () => {
     })
   })
 
-  describe('Valid', () => {
-    it('nested object with null optional field', async () => {
+  describe('Optional', () => {
+    // QUESTION should this be returned as null or should it be skipped?
+    const testTable = [
+      ['Int', ''],
+      ['RoleEnum', 'enum RoleEnum { Admin }'],
+      ['OptionalObject', 'type OptionalObject { someField: String }'],
+    ]
+
+    it.each(testTable)('when undefined', async (typeName: string, additionalTypeDef: string) => {
       const data = {
-        mandatoryObject: {
-          optionalInt: null,
-        },
+        optionalField: undefined,
       }
       const typeDefs = `
         ${typeDefsWithoutCustomType}
         type CustomType {
-          mandatoryObject: MandatoryObject
+          optionalField: ${typeName}
         }
-        type MandatoryObject {
-          optionalInt: Int
-        }
+        ${additionalTypeDef}
       `
       const schema = buildTestSchema(data, typeDefs)
       const result = await executeTestQuery(schema, userQuery)
       expect(result.errors).toEqual(undefined)
     })
 
-    it('valid nested object', async () => {
+    it.each(testTable)('when null', async (typeName: string, additionalTypeDef: string) => {
       const data = {
-        mandatoryObject: {
-          mandatoryInt: 123,
-          mandatoryEnum: 'Admin',
-        },
+        optionalField: null,
       }
       const typeDefs = `
         ${typeDefsWithoutCustomType}
         type CustomType {
-          mandatoryObject: MandatoryObject
+          optionalField: ${typeName}
         }
-        type MandatoryObject {
-          mandatoryInt: Int!
-          mandatoryEnum: RoleEnum!
-        }
-        enum RoleEnum {
-          Admin
-        }
+        ${additionalTypeDef}
       `
       const schema = buildTestSchema(data, typeDefs)
       const result = await executeTestQuery(schema, userQuery)
       expect(result.errors).toEqual(undefined)
-      expect(result.data?.user).toEqual({
-        customJson: {
-          mandatoryObject: {
-            mandatoryInt: 123,
-            mandatoryEnum: 'Admin',
-          },
-        },
-      })
     })
   })
 })

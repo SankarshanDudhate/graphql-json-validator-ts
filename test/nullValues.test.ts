@@ -7,11 +7,12 @@ import {
 } from './testUtils'
 
 describe('Null values', () => {
-  describe('Mandatory', () => {
+  describe('Mandatory fields', () => {
     const testTable = [
       ['Int', ''],
       ['RoleEnum', 'enum RoleEnum { Admin }'],
       ['MandatoryObject', 'type MandatoryObject { someField: String }'],
+      ['[Boolean]', ''],
     ]
 
     it.each(testTable)('when undefined', async (typeName: string, additionalTypeDef: string) => {
@@ -51,12 +52,13 @@ describe('Null values', () => {
     })
   })
 
-  describe('Optional', () => {
+  describe('Optional fields', () => {
     // QUESTION should this be returned as null or should it be skipped?
     const testTable = [
       ['Int', ''],
       ['RoleEnum', 'enum RoleEnum { Admin }'],
       ['OptionalObject', 'type OptionalObject { someField: String }'],
+      ['[Boolean]', ''],
     ]
 
     it.each(testTable)('when undefined', async (typeName: string, additionalTypeDef: string) => {

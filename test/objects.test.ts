@@ -47,6 +47,33 @@ describe('Objects', () => {
         'Field customJson of type JSON does not match any of the allowed types',
       )
     })
+
+    it('object with a field not of a validated type', async () => {
+      const data = {
+        mandatoryObject: {
+          mandatoryInterface: {
+            someIntField: 5,
+          },
+        },
+      }
+      const typeDefs = `
+        ${typeDefsWithoutCustomType}
+        type CustomType {
+          mandatoryObject: MandatoryObject!
+        }
+        type MandatoryObject {
+          mandatoryInterface: SomeInterface
+        }
+        interface SomeInterface {
+          someIntField: Int
+        }
+      `
+      const schema = buildTestSchema(data, typeDefs)
+      const result = await executeTestQuery(schema, userQuery)
+      expect(result.errors?.[0].message).toEqual(
+        'Field mandatoryInterface got an invalid type SomeInterface',
+      )
+    })
   })
 
   describe('Valid', () => {

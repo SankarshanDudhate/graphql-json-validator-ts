@@ -6,7 +6,7 @@ type Query {
 }
 
 type User {
-  name: String
+  name: String @structure
   dob: DoB
 }
 

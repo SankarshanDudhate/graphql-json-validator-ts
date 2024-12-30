@@ -38,6 +38,6 @@ export const typeDefsWithoutCustomType = `
   }
   type User {
     name: String
-    customJson: JSON @structure(allowedTypes: ["CustomType"])
+    customJson: JSON @structure(allowedTypes: ["CustomType", "SomeOtherType"])
   }
 `
